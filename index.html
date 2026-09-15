@@ -3,258 +3,2172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central Hub</title>
+  <title>Workspace & Study Hub</title>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- Markdown Parser (marked.js) & Sanitizer (DOMPurify) -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
   <style>
-    /* Reset & Base Styles */
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #334155;
+      --code-bg: #0b1329;
+    }
+
+    body.light-theme {
+      --bg: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --success: #059669;
+      --border: #cbd5e1;
+      --code-bg: #e2e8f0;
+    }
+
+    body.oled-theme {
+      --bg: #000000;
+      --card-bg: #0a0a0a;
+      --text-main: #ffffff;
+      --text-muted: #888888;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --border: #222222;
+      --code-bg: #111111;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
 
     body {
-      background-color: #0b0f19;
-      color: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden;
-      position: relative;
+      padding: 1.5rem 1rem;
+      transition: background-color 0.3s, color 0.3s;
     }
 
-    /* Cool Animated Ambient Background */
-    .bg-glow {
+    /* LOCK SCREEN OVERLAY */
+    #lock-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      z-index: -1;
-      background: 
-        radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 45%),
-        radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.3) 0%, transparent 45%),
-        radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.25) 0%, transparent 50%);
-      filter: blur(60px);
-      animation: floatBg 12s ease-in-out infinite alternate;
-    }
-
-    @keyframes floatBg {
-      0% { transform: scale(1) translate(0, 0); }
-      50% { transform: scale(1.1) translate(-20px, 15px); }
-      100% { transform: scale(1) translate(20px, -15px); }
-    }
-
-    /* Container */
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      padding: 40px 20px;
-    }
-
-    /* Header & Stats Dashboard */
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 800;
-      letter-spacing: 1px;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #a5b4fc, #f472b6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 30px rgba(165, 180, 252, 0.3);
-    }
-
-    .dashboard-bar {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 15px 30px;
-      min-width: 200px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #9ca3af;
-      margin-bottom: 5px;
-    }
-
-    .stat-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      font-family: monospace;
-      color: #38bdf8;
-    }
-
-    /* Games Grid */
-    .games-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
-    .game-card {
-      background: rgba(255, 255, 255, 0.04);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 25px;
+      background-color: var(--bg);
+      z-index: 99999;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
     }
 
-    .game-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(165, 180, 252, 0.4);
-      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.25);
+    .lock-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     }
 
-    .game-icon {
-      font-size: 3rem;
-      margin-bottom: 15px;
-    }
-
-    .game-title {
+    .lock-title {
       font-size: 1.4rem;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 0.5rem;
     }
 
-    .game-desc {
-      font-size: 0.95rem;
-      color: #9ca3af;
-      margin-bottom: 20px;
+    .lock-sub {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 1.5rem;
       line-height: 1.4;
     }
 
-    .play-btn {
-      display: inline-block;
-      text-align: center;
-      text-decoration: none;
-      background: linear-gradient(135deg, #6366f1, #ec4899);
-      color: #ffffff;
-      font-weight: 600;
-      padding: 12px;
-      border-radius: 12px;
-      transition: opacity 0.2s, transform 0.2s;
+    /* APP MAIN CONTENT */
+    #app-content {
+      display: none;
+      width: 100%;
+      max-width: 1050px;
     }
 
-    .play-btn:hover {
-      opacity: 0.9;
-      transform: scale(1.02);
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      width: 100%;
+      position: relative;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+    }
+
+    .header-top-bar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.6rem;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .theme-select, .lock-btn-top {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lock-btn-top:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* NAVIGATION TABS */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      background: var(--card-bg);
+      padding: 0.4rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      justify-content: center;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.88rem;
+      transition: all 0.2s ease;
+      flex: 1;
+      min-width: 120px;
+      max-width: 180px;
+      text-align: center;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARDS & GRID */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    /* WARNING BANNER */
+    .warning-banner {
+      background-color: rgba(245, 158, 11, 0.1);
+      border: 1px solid var(--warning);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .warning-title {
+      color: var(--warning);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .alert-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+      font-size: 0.95rem;
+    }
+
+    .alert-item:last-child {
+      border-bottom: none;
+    }
+
+    .alert-item.overdue {
+      color: var(--danger);
+    }
+
+    .alert-link {
+      color: #38bdf8;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .alert-link:hover {
+      text-decoration: underline;
+    }
+
+    /* CLOCK & TIMER */
+    .center-text {
+      text-align: center;
+    }
+
+    #clock-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 0.25rem;
+    }
+
+    #clock-date {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .timer-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 3.2rem;
+      font-weight: 700;
+      margin: 0.5rem 0;
+      color: var(--text-main);
+    }
+
+    .timer-modes {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-mode {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    .btn-mode.active, .btn-mode:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .timer-custom-inputs {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* FORMS & INPUTS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .input-field, textarea, select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.65rem 1rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    textarea.code-font {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+    }
+
+    .input-field:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.65rem 1.25rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--border);
+    }
+
+    .btn-danger {
+      background-color: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-edit {
+      background-color: transparent;
+      color: var(--warning);
+      border: 1px solid var(--warning);
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-edit:hover {
+      background-color: var(--warning);
+      color: #000;
+    }
+
+    .btn-copy {
+      background-color: transparent;
+      color: #38bdf8;
+      border: 1px solid #38bdf8;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-copy:hover {
+      background-color: #38bdf8;
+      color: #000;
+    }
+
+    /* TABLE / LIST STYLES */
+    .item-list {
+      list-style: none;
+      width: 100%;
+    }
+
+    .item-card {
+      background-color: var(--bg);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .item-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-weight: 600;
+      display: inline-block;
+      background: rgba(99, 102, 241, 0.2);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.4);
+    }
+
+    .badge-teacher {
+      background: rgba(16, 185, 129, 0.2) !important;
+      color: #34d399 !important;
+      border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    }
+
+    .badge-student {
+      background: rgba(99, 102, 241, 0.2) !important;
+      color: #a5b4fc !important;
+      border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    }
+
+    /* MARKDOWN CONTAINER STYLING */
+    .markdown-body {
+      color: var(--text-main);
+      font-size: 0.93rem;
+      line-height: 1.6;
+      background: var(--card-bg);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      width: 100%;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .markdown-body h1, .markdown-body h2, .markdown-body h3, .markdown-body h4 {
+      color: var(--text-main);
+      margin-top: 0.75rem;
+      margin-bottom: 0.4rem;
+      font-weight: 700;
+    }
+
+    .markdown-body h1 { font-size: 1.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+    .markdown-body h2 { font-size: 1.15rem; }
+    .markdown-body h3 { font-size: 1.05rem; }
+    .markdown-body p { margin-bottom: 0.5rem; }
+    .markdown-body p:last-child { margin-bottom: 0; }
+    .markdown-body ul, .markdown-body ol { padding-left: 1.5rem; margin-bottom: 0.5rem; }
+    .markdown-body li { margin-bottom: 0.2rem; }
+
+    .markdown-body code {
+      background: var(--code-bg);
+      color: #38bdf8;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      border: 1px solid var(--border);
+    }
+
+    .markdown-body pre {
+      background: var(--code-bg);
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+
+    .markdown-body pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: inherit;
+    }
+
+    .markdown-body blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 0.75rem;
+      color: var(--text-muted);
+      margin: 0.5rem 0;
+      font-style: italic;
+    }
+
+    .markdown-body a {
+      color: #38bdf8;
+      text-decoration: underline;
+    }
+
+    /* CODE SNIPPET BLOCK DISPLAY */
+    .code-block {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: inherit;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    /* HTML PREVIEW IFRAME */
+    .preview-frame {
+      width: 100%;
+      height: 220px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-top: 0.75rem;
+    }
+
+    /* FILTER BAR */
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-bar .input-field, .filter-bar select {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    /* KANBAN BOARD */
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .kanban-col {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 220px;
+    }
+
+    .kanban-col-title {
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kanban-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      padding: 0.85rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .kanban-actions {
+      display: flex;
+      gap: 0.3rem;
+      margin-top: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    /* FLASHCARD STYLES */
+    .flashcard-wrapper {
+      perspective: 1000px;
+      width: 100%;
+      max-width: 480px;
+      height: 250px;
+      margin: 1rem auto;
+      cursor: pointer;
+    }
+
+    .flashcard-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .flashcard-inner.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-front, .flashcard-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+      border-color: var(--accent);
+    }
+
+    /* FOOTER LINKS */
+    .quick-links {
+      margin-top: auto;
+      padding-top: 2rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .quick-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .quick-links a:hover {
+      color: var(--accent);
     }
   </style>
 </head>
 <body>
 
-  <!-- Glowing Background -->
-  <div class="bg-glow"></div>
-
-  <div class="container">
-    <header>
-      <h1>🕹️ CENTRAL HUB</h1>
-      
-      <!-- Stats / Timers -->
-      <div class="dashboard-bar">
-        <div class="stat-card">
-          <div class="stat-label">Current Time</div>
-          <div id="clock" class="stat-value">--:--:--</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Playtime Session</div>
-          <div id="playtime" class="stat-value">00:00:00</div>
-        </div>
+  <!-- LOCK SCREEN OVERLAY -->
+  <div id="lock-screen">
+    <div class="lock-card">
+      <div class="lock-title">🔒 Protected Workspace</div>
+      <p class="lock-sub">Enter Student or Teacher password to unlock.<br><span style="color: red;"><b>If password is entered incorrectly you will be locked out!</b></span></p>
+      <div class="form-group">
+        <input type="password" id="password-input" class="input-field" placeholder="Enter password..." onkeypress="handleLockKeyPress(event)">
+        <button class="btn" onclick="verifyPassword()">Unlock Hub</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTENT -->
+  <div id="app-content">
+
+    <header>
+      <div class="header-top-bar">
+        <select class="theme-select" id="theme-selector" onchange="changeTheme(this.value)">
+          <option value="dark">🌙 Dark Theme</option>
+          <option value="oled">🖤 OLED Black</option>
+          <option value="light">☀️ Light Mode</option>
+        </select>
+        <span id="user-badge" class="badge">User: Student</span>
+        <button class="lock-btn-top" onclick="lockSite()">🔒 Lock / Switch</button>
+      </div>
+      <h1>💻 Student Hub</h1>
+      <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('hub', event)">Main Hub</button>
+        <button class="tab-btn" onclick="switchTab('assignments', event)">Assignments & Board</button>
+        <button class="tab-btn" onclick="switchTab('workspace', event)">Notes & Code</button>
+        <button class="tab-btn" onclick="switchTab('flashcards', event)">🎴 Flashcards</button>
+        <button class="tab-btn" onclick="switchTab('gpa', event)">📊 GPA Calculator</button>
+        <button class="tab-btn" onclick="switchTab('logs', event)">📋 Logs & Backup</button>
+      </nav>
     </header>
 
-    <!-- Game List -->
-    <main class="games-grid">
+    <div class="container">
 
-      <!-- Game 1 -->
-      <div class="game-card">
-        <div>
-          <div class="game-icon">👆</div>
-          <h2 class="game-title">Clicker</h2>
-          <p class="game-desc">Get as many clicks as possible.</p>
+      <!-- TAB 1: MAIN HUB -->
+      <div id="tab-hub" class="tab-content active">
+        
+        <!-- Dynamic Assignment Alerts Banner -->
+        <div id="urgent-alert-container"></div>
+
+        <!-- RECOMMENDED PRIORITY WORK ORDER SECTION -->
+        <div class="card">
+          <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>🎯 Recommended Task Order (Date & Weight Matrix)</span>
+            <span style="font-size:0.75rem; color:var(--text-muted); text-transform:none; font-weight:normal;">Prioritized by urgency & weight</span>
+          </div>
+          <div id="priority-assignment-list" class="item-list"></div>
         </div>
-        <!-- Note: target="_blank" opens in a new tab so your session timer keeps running -->
-        <a href="games/index.html" target="_blank" class="play-btn">Play Now</a>
+
+        <div class="grid-2">
+          <!-- Clock & Date -->
+          <div class="card center-text">
+            <div class="card-title">Local Time & Date</div>
+            <div id="clock-time">00:00:00 AM</div>
+            <div id="clock-date">Loading date...</div>
+          </div>
+
+          <!-- Focus Timer with Custom Input & Ambient Sound Generator -->
+          <div class="card center-text">
+            <div class="card-title">Focus Timer & Ambient Sounds</div>
+            <div class="timer-modes">
+              <button class="btn-mode active" onclick="setTimerMode(25, this)">Work (25m)</button>
+              <button class="btn-mode" onclick="setTimerMode(5, this)">Short Break (5m)</button>
+              <button class="btn-mode" onclick="setTimerMode(15, this)">Long Break (15m)</button>
+            </div>
+            
+            <div class="timer-custom-inputs">
+              <label>Custom (mins):</label>
+              <input type="number" id="custom-timer-min" class="input-field" style="width: 70px; padding: 0.2rem 0.5rem;" min="1" max="180" placeholder="25">
+              <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="applyCustomTimer()">Set</button>
+            </div>
+
+            <div class="timer-display" id="timer-display">25:00</div>
+            <div style="margin-bottom: 1rem;">
+              <button class="btn" id="start-btn" onclick="toggleTimer()">Start</button>
+              <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+            </div>
+
+            <!-- Ambient Sound Synth -->
+            <hr style="border-color: var(--border); margin: 0.75rem 0;">
+            <div style="display:flex; justify-content:center; align-items:center; gap: 0.5rem; flex-wrap: wrap;">
+              <span style="font-size: 0.85rem; color: var(--text-muted);">🎧 Ambient Sound:</span>
+              <select id="ambient-sound-select" onchange="toggleAmbientSound()" style="padding: 0.3rem 0.5rem; font-size: 0.85rem;">
+                <option value="none">Off</option>
+                <option value="rain">🌧️ Rain (Pink Noise)</option>
+                <option value="white">📻 White Noise</option>
+              </select>
+              <input type="range" id="ambient-volume" min="0" max="0.5" step="0.01" value="0.1" oninput="updateAmbientVolume()" title="Volume">
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Game 2 -->
-      <div class="game-card">
-        <div>
-          <div class="game-icon">🐍</div>
-          <h2 class="game-title">Retro Snake</h2>
-          <p class="game-desc">Eat pixels, grow longer, and avoid running into yourself.</p>
+      <!-- TAB 2: SCHOOL ASSIGNMENTS & KANBAN -->
+      <div id="tab-assignments" class="tab-content">
+        <div class="card" id="assignment-form-card">
+          <div class="card-title" id="assign-form-title">Add New Assignment</div>
+          <form id="assignment-form" onsubmit="addAssignment(event)">
+            <div class="form-group">
+              <input type="text" id="assign-name" class="input-field" placeholder="Assignment Name (e.g., CS101 Project 1)" required>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="url" id="assign-link" class="input-field" style="flex:2;" placeholder="Link (e.g., https://canvas.edu/assignment/123)">
+                <input type="text" id="assign-weight" class="input-field" style="flex:1;" placeholder="Weight / Points (e.g. 20% or 100 pts)">
+              </div>
+              <input type="datetime-local" id="assign-due" class="input-field" required>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="submit" class="btn" id="assign-submit-btn">Add Assignment</button>
+              <button type="button" class="btn btn-secondary" id="assign-cancel-btn" style="display:none;" onclick="cancelAssignmentEdit()">Cancel</button>
+            </div>
+          </form>
         </div>
-        <a href="games/snake/index.html" target="_blank" class="play-btn">Play Now</a>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div class="card-title" style="margin-bottom:0;">Your Assignments</div>
+            <div style="display:flex; gap: 0.4rem;">
+              <button class="btn btn-secondary" id="view-btn-list" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="setAssignmentView('list')">List View</button>
+              <button class="btn btn-secondary" id="view-btn-kanban" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="setAssignmentView('kanban')">Kanban View</button>
+            </div>
+          </div>
+
+          <!-- List Container -->
+          <ul id="assignment-list" class="item-list"></ul>
+
+          <!-- Kanban Board Container -->
+          <div id="assignment-kanban" class="kanban-board" style="display:none;">
+            <div class="kanban-col">
+              <div class="kanban-col-title" style="color: var(--warning);">📌 To Do <span id="count-todo" class="badge">0</span></div>
+              <div id="kanban-todo-list"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-title" style="color: #38bdf8;">⏳ In Progress <span id="count-in-progress" class="badge">0</span></div>
+              <div id="kanban-progress-list"></div>
+            </div>
+            <div class="kanban-col">
+              <div class="kanban-col-title" style="color: var(--success);">✅ Completed <span id="count-completed" class="badge">0</span></div>
+              <div id="kanban-completed-list"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Game 3 -->
-      <div class="game-card">
-        <div>
-          <div class="game-icon">🧱</div>
-          <h2 class="game-title">Brick Breaker</h2>
-          <p class="game-desc">Classic arcade paddle game. Bounce the ball and destroy all bricks.</p>
+      <!-- TAB 3: WORKSPACE, HTML LOADER & CODE VAULT -->
+      <div id="tab-workspace" class="tab-content">
+        
+        <div class="grid-2">
+          <!-- Text Documents / Quick Notes (Markdown Supported) -->
+          <div class="card" id="notes-form-card">
+            <div class="card-title" id="note-form-title">Text Documents / Notes (Markdown Enabled)</div>
+            <div class="form-group">
+              <input type="text" id="note-title" class="input-field" placeholder="Document Title...">
+              <textarea id="note-content" rows="6" placeholder="Write your notes here... Supports Markdown syntax (# Header, **bold**, - lists, `code`, [link](url)...)"></textarea>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn" id="note-submit-btn" onclick="saveNote()">Save Note</button>
+                <button class="btn btn-secondary" id="note-cancel-btn" style="display:none;" onclick="cancelNoteEdit()">Cancel</button>
+              </div>
+            </div>
+            <hr style="border-color: var(--border); margin: 1rem 0;">
+            <div id="notes-list" class="item-list"></div>
+          </div>
+
+          <!-- HTML Loader & Live Preview with Sandboxing -->
+          <div class="card">
+            <div class="card-title">HTML Loader & Live Preview</div>
+            <div class="form-group">
+              <textarea id="html-input" class="code-font" rows="5" placeholder="Paste or write HTML/CSS code here... e.g. <h2 style='color:blue;'>Hello World!</h2>"></textarea>
+              <div style="display:flex; gap:0.5rem;">
+                <button class="btn" style="flex:1;" onclick="renderHTMLLoader()">Load & Preview HTML</button>
+                <button class="btn btn-secondary" onclick="clearHTMLLoader()">Clear</button>
+              </div>
+            </div>
+            <!-- Sandboxed Iframe for security -->
+            <iframe id="html-preview" class="preview-frame" sandbox="allow-scripts" title="HTML Live Preview"></iframe>
+          </div>
         </div>
-        <a href="games/brick-breaker/index.html" target="_blank" class="play-btn">Play Now</a>
+
+        <!-- Code Saver & Library Section -->
+        <div class="card" id="code-form-card">
+          <div class="card-title" id="code-form-title">Save Code Snippet</div>
+          <div class="form-group">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <input type="text" id="code-title" class="input-field" placeholder="Code Title (e.g., Quick sort algorithm)" style="flex: 2; min-width: 200px;" required>
+              
+              <select id="code-lang" style="flex: 1; min-width: 150px;">
+                <option value="HTML">HTML</option>
+                <option value="CSS">CSS</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="TypeScript">TypeScript</option>
+                <option value="Python">Python</option>
+                <option value="Java">Java</option>
+                <option value="C++">C++</option>
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="PHP">PHP</option>
+                <option value="Ruby">Ruby</option>
+                <option value="Go">Go</option>
+                <option value="Rust">Rust</option>
+                <option value="SQL">SQL</option>
+                <option value="Bash/Shell">Bash / Shell</option>
+                <option value="Swift">Swift</option>
+                <option value="Kotlin">Kotlin</option>
+                <option value="JSON">JSON</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <input type="text" id="code-desc" class="input-field" placeholder="Description (Optional - Supports Markdown)">
+            <textarea id="code-body" class="code-font" rows="6" placeholder="Paste your code snippet here..." required></textarea>
+            
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn" id="code-submit-btn" onclick="saveCodeSnippet()">Save Code Snippet</button>
+              <button class="btn btn-secondary" id="code-cancel-btn" style="display:none;" onclick="cancelCodeEdit()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Code Snippets Vault -->
+        <div class="card">
+          <div class="card-title">Code Storage & Library</div>
+          
+          <div class="filter-bar">
+            <input type="text" id="code-search-input" class="input-field" placeholder="🔍 Search saved code by title or keyword..." oninput="renderCodeSnippets()">
+            <select id="code-filter-lang" onchange="renderCodeSnippets()">
+              <option value="ALL">Filter by Language (All)</option>
+              <option value="HTML">HTML</option>
+              <option value="CSS">CSS</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="Python">Python</option>
+              <option value="Java">Java</option>
+              <option value="C++">C++</option>
+              <option value="C">C</option>
+              <option value="C#">C#</option>
+              <option value="PHP">PHP</option>
+              <option value="Ruby">Ruby</option>
+              <option value="Go">Go</option>
+              <option value="Rust">Rust</option>
+              <option value="SQL">SQL</option>
+              <option value="Bash/Shell">Bash / Shell</option>
+              <option value="Swift">Swift</option>
+              <option value="Kotlin">Kotlin</option>
+              <option value="JSON">JSON</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div id="code-vault-list" class="item-list"></div>
+        </div>
+
       </div>
 
-      <!-- Copy and paste more game cards here as you add games! -->
+      <!-- TAB 4: FLASHCARD SYSTEM -->
+      <div id="tab-flashcards" class="tab-content">
+        <div class="grid-2">
+          <!-- Flashcard Deck Viewer -->
+          <div class="card center-text">
+            <div class="card-title">Flashcard Deck Review</div>
+            
+            <div id="flashcard-deck-container">
+              <div class="flashcard-wrapper" onclick="flipFlashcard()">
+                <div class="flashcard-inner" id="card-inner">
+                  <div class="flashcard-front">
+                    <span class="badge" id="card-deck-tag" style="position: absolute; top: 1rem; left: 1rem;">Deck</span>
+                    <h3 id="card-front-text">No cards added yet!</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); position: absolute; bottom: 1rem;">(Click card to flip)</p>
+                  </div>
+                  <div class="flashcard-back">
+                    <h3 id="card-back-text">Add flashcards using the form to start studying.</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); position: absolute; bottom: 1rem;">(Click card to flip back)</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 1rem;">
+                <button class="btn btn-secondary" onclick="prevFlashcard()">← Prev</button>
+                <span id="flashcard-counter" style="font-size: 0.9rem; color: var(--text-muted);">0 / 0</span>
+                <button class="btn btn-secondary" onclick="nextFlashcard()">Next →</button>
+                <button class="btn btn-secondary" onclick="shuffleFlashcards()">🔀 Shuffle</button>
+              </div>
+            </div>
+          </div>
 
-    </main>
+          <!-- Add / Manage Cards -->
+          <div class="card">
+            <div class="card-title">Add New Flashcard</div>
+            <form onsubmit="addFlashcard(event)">
+              <div class="form-group">
+                <input type="text" id="fc-deck" class="input-field" placeholder="Deck / Category (e.g., Biology, CS101)" required>
+                <textarea id="fc-front" rows="3" placeholder="Front Question / Prompt..." required></textarea>
+                <textarea id="fc-back" rows="3" placeholder="Back Answer / Explanation..." required></textarea>
+                <button type="submit" class="btn">Add Flashcard</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Your Flashcards Library</div>
+          <div id="flashcard-manage-list" class="item-list"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5: GPA CALCULATOR (WITH 100-POINT PERCENTAGE SCALE CONVERTER) -->
+      <div id="tab-gpa" class="tab-content">
+        <div class="grid-2">
+          <!-- Form -->
+          <div class="card">
+            <div class="card-title">Add Course Grade</div>
+            <form onsubmit="addCourseGrade(event)">
+              <div class="form-group">
+                <input type="text" id="gpa-course-name" class="input-field" placeholder="Course Name (e.g., Organic Chemistry)" required>
+                <input type="number" id="gpa-credits" class="input-field" placeholder="Credit Hours (e.g., 3)" min="1" max="10" required>
+                
+                <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
+                  <input type="number" id="gpa-score-pct" class="input-field" placeholder="Percentage Score % (0-100)" min="0" max="100" step="0.1" style="flex:1; min-width: 140px;">
+                  <span style="align-self: center; font-size: 0.8rem; color: var(--text-muted);">OR</span>
+                  <select id="gpa-letter-grade" style="flex:1; min-width: 140px;">
+                    <option value="">Select Letter Grade</option>
+                    <option value="4.0">A (93-100%) - 4.0</option>
+                    <option value="3.7">A- (90-92%) - 3.7</option>
+                    <option value="3.3">B+ (87-89%) - 3.3</option>
+                    <option value="3.0">B (83-86%) - 3.0</option>
+                    <option value="2.7">B- (80-82%) - 2.7</option>
+                    <option value="2.3">C+ (77-79%) - 2.3</option>
+                    <option value="2.0">C (73-76%) - 2.0</option>
+                    <option value="1.7">C- (70-72%) - 1.7</option>
+                    <option value="1.3">D+ (67-69%) - 1.3</option>
+                    <option value="1.0">D (65-66%) - 1.0</option>
+                    <option value="0.0">F (&lt; 65%) - 0.0</option>
+                  </select>
+                </div>
+                <small style="color: var(--text-muted); font-size: 0.78rem;">* Enter percentage to auto-convert to GPA on standard 100-pt scale, or pick letter grade.</small>
+                <button type="submit" class="btn">Add Course</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- GPA Score Overview -->
+          <div class="card center-text" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="card-title">Cumulative GPA</div>
+            <div id="gpa-display-score" style="font-size: 3.5rem; font-weight: 700; color: #10b981; font-family: 'JetBrains Mono', monospace;">0.00</div>
+            <div id="gpa-total-credits" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Total Credits: 0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Logged Courses</div>
+          <ul id="gpa-course-list" class="item-list"></ul>
+        </div>
+      </div>
+
+      <!-- TAB 6: ACTIVITY LOG & BACKUP -->
+      <div id="tab-logs" class="tab-content">
+        <!-- Data Export & Import Card -->
+        <div class="card">
+          <div class="card-title">Data Backup & Restore</div>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">
+            Export all your dashboard notes, assignments, code snippets, flashcards, and logs into a single JSON backup file, or restore them.
+          </p>
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <button class="btn" onclick="exportAllData()">📥 Export Backup (JSON)</button>
+            <label class="btn btn-secondary" style="cursor: pointer; display: inline-block;">
+              📤 Import Backup (JSON)
+              <input type="file" id="import-file-input" accept=".json" style="display: none;" onchange="importAllData(event)">
+            </label>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div class="card-title" style="margin-bottom:0;">Activity & Modification Audit Log</div>
+            <button class="btn btn-danger" onclick="clearActivityLogs()">Clear History</button>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">
+            This log automatically records changes made across the site, including who performed each action (Student vs. Teacher).
+          </p>
+          <ul id="activity-log-list" class="item-list"></ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="quick-links">
+      <a href="https://github.com" target="_blank">🔗 GitHub</a>
+      <a href="https://stackoverflow.com" target="_blank">🔗 Stack Overflow</a>
+      <a href="https://developer.mozilla.org" target="_blank">🔗 MDN Web Docs</a>
+    </div>
+
   </div>
 
   <script>
-    // 1. Live Clock Functionality
+    /* ================= THEME SWITCHER ================= */
+    const savedTheme = localStorage.getItem('hub_theme') || 'dark';
+    changeTheme(savedTheme);
+
+    function changeTheme(theme) {
+      document.body.className = '';
+      if (theme === 'light') document.body.classList.add('light-theme');
+      if (theme === 'oled') document.body.classList.add('oled-theme');
+      localStorage.setItem('hub_theme', theme);
+      const sel = document.getElementById('theme-selector');
+      if (sel) sel.value = theme;
+    }
+
+    /* ================= AUTHENTICATION & SECURITY ================= */
+    const STUDENT_HASH = "851d709390b367c9df9f3e1b50b4471bc514c5afd07df4a10ad592691d0934c0";
+    const TEACHER_HASH = "4776e0d485160c542ef14be33dc101cbd5e06ecbff4a644d814d6d17fd7d390c"; 
+
+    let currentUserRole = localStorage.getItem('hub_user_role') || 'Student';
+
+    async function hashString(str) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verifyPassword() {
+      const input = document.getElementById('password-input').value;
+      const hashedInput = await hashString(input);
+
+      if (hashedInput === STUDENT_HASH) {
+        currentUserRole = 'Student';
+        localStorage.setItem('hub_authenticated', 'true');
+        localStorage.setItem('hub_user_role', 'Student');
+        unlockSite();
+        logActivity('Logged in as Student');
+      } else if (hashedInput === TEACHER_HASH) {
+        currentUserRole = 'Teacher';
+        localStorage.setItem('hub_authenticated', 'true');
+        localStorage.setItem('hub_user_role', 'Teacher');
+        unlockSite();
+        logActivity('Logged in as Teacher');
+      } else {
+        alert('Incorrect Password! Access Denied.');
+        document.getElementById('password-input').value = '';
+      }
+    }
+
+    function updateRoleUI() {
+      const badge = document.getElementById('user-badge');
+      if (badge) {
+        badge.textContent = `User: ${currentUserRole}`;
+        badge.className = currentUserRole === 'Teacher' ? 'badge badge-teacher' : 'badge badge-student';
+      }
+    }
+
+    function unlockSite() {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('app-content').style.display = 'block';
+      updateRoleUI();
+    }
+
+    function lockSite() {
+      localStorage.removeItem('hub_authenticated');
+      document.getElementById('password-input').value = '';
+      document.getElementById('app-content').style.display = 'none';
+      document.getElementById('lock-screen').style.display = 'flex';
+      stopAmbientSound();
+    }
+
+    function handleLockKeyPress(e) {
+      if (e.key === 'Enter') verifyPassword();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('hub_authenticated') === 'true') {
+        currentUserRole = localStorage.getItem('hub_user_role') || 'Student';
+        unlockSite();
+      } else {
+        lockSite();
+      }
+    });
+
+    /* ================= ACTIVITY & AUDIT LOGS ================= */
+    let activityLogs = JSON.parse(localStorage.getItem('hub_activity_log')) || [];
+
+    function logActivity(actionText) {
+      const entry = {
+        id: Date.now(),
+        timestamp: new Date().toLocaleString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }),
+        user: currentUserRole,
+        action: actionText
+      };
+
+      activityLogs.unshift(entry);
+      localStorage.setItem('hub_activity_log', JSON.stringify(activityLogs));
+      renderActivityLogs();
+    }
+
+    function renderActivityLogs() {
+      const list = document.getElementById('activity-log-list');
+      if (!list) return;
+
+      list.innerHTML = activityLogs.length === 0 ? '<p style="color:var(--text-muted)">No activity recorded yet.</p>' : '';
+
+      activityLogs.forEach(log => {
+        const li = document.createElement('li');
+        li.className = 'item-card';
+        const isTeacher = log.user === 'Teacher';
+        
+        li.innerHTML = `
+          <div class="item-info">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0.2rem;">
+              <span class="badge ${isTeacher ? 'badge-teacher' : 'badge-student'}">${escapeHTML(log.user)}</span>
+              <span class="item-sub">${escapeHTML(log.timestamp)}</span>
+            </div>
+            <span class="item-title" style="font-weight: 500; font-size: 0.95rem;">${escapeHTML(log.action)}</span>
+          </div>
+        `;
+        list.appendChild(li);
+      });
+    }
+
+    function clearActivityLogs() {
+      if (confirm('Are you sure you want to clear the entire activity log history?')) {
+        activityLogs = [];
+        localStorage.removeItem('hub_activity_log');
+        logActivity('Cleared Activity Log History');
+        renderActivityLogs();
+      }
+    }
+
+    /* ================= EXPORT & IMPORT BACKUP DATA ================= */
+    function exportAllData() {
+      const data = {
+        assignments: JSON.parse(localStorage.getItem('hub_assignments')) || [],
+        notes: JSON.parse(localStorage.getItem('hub_notes')) || [],
+        code_snippets: JSON.parse(localStorage.getItem('hub_code_snippets')) || [],
+        flashcards: JSON.parse(localStorage.getItem('hub_flashcards')) || [],
+        grades: JSON.parse(localStorage.getItem('hub_grades')) || [],
+        activity_log: JSON.parse(localStorage.getItem('hub_activity_log')) || [],
+        exportedAt: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `student_hub_backup_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      logActivity('Exported full data backup JSON');
+    }
+
+    function importAllData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (data.assignments) localStorage.setItem('hub_assignments', JSON.stringify(data.assignments));
+          if (data.notes) localStorage.setItem('hub_notes', JSON.stringify(data.notes));
+          if (data.code_snippets) localStorage.setItem('hub_code_snippets', JSON.stringify(data.code_snippets));
+          if (data.flashcards) localStorage.setItem('hub_flashcards', JSON.stringify(data.flashcards));
+          if (data.grades) localStorage.setItem('hub_grades', JSON.stringify(data.grades));
+          if (data.activity_log) localStorage.setItem('hub_activity_log', JSON.stringify(data.activity_log));
+
+          alert('Data restored successfully!');
+          logActivity('Imported full backup data from JSON file');
+          location.reload();
+        } catch(err) {
+          alert('Failed to parse file. Make sure it is a valid backup JSON file.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* ================= TAB SWITCHING ================= */
+    function switchTab(tabName, evt) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      if (evt && evt.target) {
+        evt.target.classList.add('active');
+      }
+
+      if (tabName === 'hub') {
+        checkDueWarnings();
+        renderPriorityAssignments();
+      }
+      if (tabName === 'logs') renderActivityLogs();
+      if (tabName === 'flashcards') renderFlashcardViewer();
+      if (tabName === 'gpa') renderCourseGrades();
+    }
+
+    /* ================= CLOCK & DATE ================= */
     function updateClock() {
       const now = new Date();
-      document.getElementById('clock').innerText = now.toLocaleTimeString();
+      document.getElementById('clock-time').textContent = now.toLocaleTimeString('en-US', { 
+        hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+      });
+      document.getElementById('clock-date').textContent = now.toLocaleDateString('en-US', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      });
     }
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 2. Playtime Counter Functionality
-    const startTime = Date.now();
+    /* ================= FOCUS TIMER & AMBIENT AUDIO ================= */
+    let timerInterval = null;
+    let totalSeconds = 25 * 60;
+    let initialSeconds = 25 * 60;
+    let isRunning = false;
 
-    function updatePlaytime() {
-      const elapsedMs = Date.now() - startTime;
-      const totalSeconds = Math.floor(elapsedMs / 1000);
-
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      const pad = (num) => String(num).padStart(2, '0');
-
-      document.getElementById('playtime').innerText = 
-        `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    function updateTimerDisplay() {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      document.getElementById('timer-display').textContent = 
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
-    setInterval(updatePlaytime, 1000);
-    updatePlaytime();
+
+    function toggleTimer() {
+      const startBtn = document.getElementById('start-btn');
+      if (isRunning) {
+        clearInterval(timerInterval);
+        startBtn.textContent = 'Start';
+        isRunning = false;
+      } else {
+        timerInterval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            alert('Timer finished!');
+            resetTimer();
+          }
+        }, 1000);
+        startBtn.textContent = 'Pause';
+        isRunning = true;
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      totalSeconds = initialSeconds;
+      isRunning = false;
+      document.getElementById('start-btn').textContent = 'Start';
+      updateTimerDisplay();
+    }
+
+    function setTimerMode(minutes, element) {
+      if (element) {
+        document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+      }
+      initialSeconds = minutes * 60;
+      resetTimer();
+    }
+
+    function applyCustomTimer() {
+      const mins = parseInt(document.getElementById('custom-timer-min').value);
+      if (mins && mins > 0) {
+        document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
+        setTimerMode(mins, null);
+      }
+    }
+
+    /* Ambient Audio Generator (Web Audio API Synthesis) */
+    let audioCtx = null;
+    let noiseNode = null;
+    let gainNode = null;
+
+    function toggleAmbientSound() {
+      const type = document.getElementById('ambient-sound-select').value;
+      if (type === 'none') {
+        stopAmbientSound();
+        return;
+      }
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      stopAmbientSound();
+
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+
+      if (type === 'white') {
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+      } else if (type === 'rain') {
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          let white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+          output[i] *= 0.11;
+          b6 = white * 0.115926;
+        }
+      }
+
+      noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = noiseBuffer;
+      noiseNode.loop = true;
+
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = parseFloat(document.getElementById('ambient-volume').value);
+
+      noiseNode.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      noiseNode.start();
+    }
+
+    function updateAmbientVolume() {
+      if (gainNode) {
+        gainNode.gain.value = parseFloat(document.getElementById('ambient-volume').value);
+      }
+    }
+
+    function stopAmbientSound() {
+      if (noiseNode) {
+        try { noiseNode.stop(); } catch(e){}
+        noiseNode.disconnect();
+        noiseNode = null;
+      }
+    }
+
+    /* ================= SCHOOL ASSIGNMENTS & KANBAN ================= */
+    let assignments = JSON.parse(localStorage.getItem('hub_assignments')) || [];
+    let editingAssignmentId = null;
+    let currentAssignmentView = 'list';
+
+    function setAssignmentView(view) {
+      currentAssignmentView = view;
+      document.getElementById('view-btn-list').className = view === 'list' ? 'btn' : 'btn btn-secondary';
+      document.getElementById('view-btn-kanban').className = view === 'kanban' ? 'btn' : 'btn btn-secondary';
+
+      document.getElementById('assignment-list').style.display = view === 'list' ? 'block' : 'none';
+      document.getElementById('assignment-kanban').style.display = view === 'kanban' ? 'grid' : 'none';
+
+      renderAssignments();
+    }
+
+    function saveAssignments() {
+      localStorage.setItem('hub_assignments', JSON.stringify(assignments));
+      renderAssignments();
+      checkDueWarnings();
+      renderPriorityAssignments();
+    }
+
+    function addAssignment(e) {
+      e.preventDefault();
+      const name = document.getElementById('assign-name').value;
+      const link = document.getElementById('assign-link').value;
+      const weight = document.getElementById('assign-weight').value;
+      const due = document.getElementById('assign-due').value;
+
+      if (editingAssignmentId !== null) {
+        assignments = assignments.map(a => a.id === editingAssignmentId ? { ...a, name, link, weight, due } : a);
+        logActivity(`Updated assignment "${name}"`);
+        cancelAssignmentEdit();
+      } else {
+        assignments.push({ id: Date.now(), name, link, weight, due, status: 'todo', completed: false });
+        logActivity(`Added assignment "${name}"`);
+        document.getElementById('assignment-form').reset();
+      }
+      
+      saveAssignments();
+    }
+
+    function editAssignment(id) {
+      const item = assignments.find(a => a.id === id);
+      if (item) {
+        editingAssignmentId = id;
+        document.getElementById('assign-name').value = item.name;
+        document.getElementById('assign-link').value = item.link || '';
+        document.getElementById('assign-weight').value = item.weight || '';
+        document.getElementById('assign-due').value = item.due;
+
+        document.getElementById('assign-form-title').textContent = 'Edit Assignment';
+        document.getElementById('assign-submit-btn').textContent = 'Update Assignment';
+        document.getElementById('assign-cancel-btn').style.display = 'inline-block';
+
+        document.getElementById('assignment-form-card').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function cancelAssignmentEdit() {
+      editingAssignmentId = null;
+      document.getElementById('assignment-form').reset();
+      document.getElementById('assign-form-title').textContent = 'Add New Assignment';
+      document.getElementById('assign-submit-btn').textContent = 'Add Assignment';
+      document.getElementById('assign-cancel-btn').style.display = 'none';
+    }
+
+    function updateAssignmentStatus(id, newStatus) {
+      const item = assignments.find(a => a.id === id);
+      if (item) {
+        item.status = newStatus;
+        item.completed = (newStatus === 'completed');
+        logActivity(`Moved assignment "${item.name}" to ${newStatus}`);
+        saveAssignments();
+      }
+    }
+
+    function toggleAssignment(id) {
+      const item = assignments.find(a => a.id === id);
+      if (item) {
+        const isComp = !item.completed;
+        item.completed = isComp;
+        item.status = isComp ? 'completed' : 'todo';
+        logActivity(`Marked assignment "${item.name}" as ${isComp ? 'completed' : 'incomplete'}`);
+        saveAssignments();
+      }
+    }
+
+    function deleteAssignment(id) {
+      const item = assignments.find(a => a.id === id);
+      if (item) {
+        logActivity(`Deleted assignment "${item.name}"`);
+        assignments = assignments.filter(a => a.id !== id);
+        if (editingAssignmentId === id) cancelAssignmentEdit();
+        saveAssignments();
+      }
+    }
+
+    function renderAssignments() {
+      if (currentAssignmentView === 'list') {
+        const list = document.getElementById('assignment-list');
+        list.innerHTML = assignments.length === 0 ? '<p style="color:var(--text-muted)">No assignments listed.</p>' : '';
+
+        assignments.forEach(a => {
+          const dueDate = new Date(a.due);
+          const li = document.createElement('li');
+          li.className = 'item-card';
+          li.innerHTML = `
+            <div class="item-info">
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <span class="item-title" style="${a.completed ? 'text-decoration: line-through; color: var(--text-muted);' : ''}">${escapeHTML(a.name)}</span>
+                ${a.weight ? `<span class="badge" style="background:rgba(56, 189, 248, 0.2); color:#38bdf8; border-color:rgba(56, 189, 248, 0.4);">Weight: ${escapeHTML(a.weight)}</span>` : ''}
+              </div>
+              <span class="item-sub">Due: ${dueDate.toLocaleString()}</span>
+              ${a.link ? `<a href="${a.link}" target="_blank" class="alert-link">Open Link ↗</a>` : ''}
+            </div>
+            <div style="display:flex; gap:0.4rem; align-items:center;">
+              <input type="checkbox" ${a.completed ? 'checked' : ''} onclick="toggleAssignment(${a.id})">
+              <button class="btn-edit" onclick="editAssignment(${a.id})">Edit</button>
+              <button class="btn-danger" onclick="deleteAssignment(${a.id})">Delete</button>
+            </div>
+          `;
+          list.appendChild(li);
+        });
+      } else {
+        const todoContainer = document.getElementById('kanban-todo-list');
+        const progressContainer = document.getElementById('kanban-progress-list');
+        const completedContainer = document.getElementById('kanban-completed-list');
+
+        todoContainer.innerHTML = '';
+        progressContainer.innerHTML = '';
+        completedContainer.innerHTML = '';
+
+        let todoCount = 0, progCount = 0, compCount = 0;
+
+        assignments.forEach(a => {
+          const status = a.status || (a.completed ? 'completed' : 'todo');
+          const card = document.createElement('div');
+          card.className = 'kanban-card';
+          
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <span style="font-weight: 600; font-size: 0.95rem;">${escapeHTML(a.name)}</span>
+              ${a.weight ? `<span class="badge" style="font-size:0.7rem; padding:0.1rem 0.35rem; background:rgba(56, 189, 248, 0.2); color:#38bdf8;">${escapeHTML(a.weight)}</span>` : ''}
+            </div>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Due: ${new Date(a.due).toLocaleDateString()}</span>
+            ${a.link ? `<a href="${a.link}" target="_blank" class="alert-link" style="font-size: 0.8rem;">Open Link ↗</a>` : ''}
+            <div class="kanban-actions">
+              ${status !== 'todo' ? `<button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="updateAssignmentStatus(${a.id}, 'todo')">← To Do</button>` : ''}
+              ${status !== 'in-progress' ? `<button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="updateAssignmentStatus(${a.id}, 'in-progress')">Progress</button>` : ''}
+              ${status !== 'completed' ? `<button class="btn btn-secondary" style="padding: 0.2rem 0.4rem; font-size: 0.75rem;" onclick="updateAssignmentStatus(${a.id}, 'completed')">Done →</button>` : ''}
+            </div>
+          `;
+
+          if (status === 'todo') { todoContainer.appendChild(card); todoCount++; }
+          else if (status === 'in-progress') { progressContainer.appendChild(card); progCount++; }
+          else { completedContainer.appendChild(card); compCount++; }
+        });
+
+        document.getElementById('count-todo').textContent = todoCount;
+        document.getElementById('count-in-progress').textContent = progCount;
+        document.getElementById('count-completed').textContent = compCount;
+      }
+    }
+
+    /* ================= PRIORITY ASSIGNMENT RANKING SYSTEM ================= */
+    function parseAssignmentWeight(w) {
+      if (!w) return 10;
+      const match = String(w).match(/(\d+(?:\.\d+)?)/);
+      return match ? parseFloat(match[1]) : 10;
+    }
+
+    function renderPriorityAssignments() {
+      const container = document.getElementById('priority-assignment-list');
+      if (!container) return;
+
+      const pending = assignments.filter(a => !a.completed && a.status !== 'completed');
+
+      if (pending.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted)">🎉 You are all caught up! No pending tasks to prioritize.</p>';
+        return;
+      }
+
+      const now = new Date();
+
+      const prioritized = pending.map(a => {
+        const due = new Date(a.due);
+        const hoursLeft = (due - now) / (1000 * 60 * 60);
+        const weightVal = parseAssignmentWeight(a.weight);
+
+        let priorityScore = 0;
+        if (hoursLeft <= 0) {
+          priorityScore = 100000 + Math.abs(hoursLeft) * 50 + weightVal * 100;
+        } else {
+          priorityScore = (weightVal * 100) / Math.max(hoursLeft, 0.25);
+        }
+
+        return { assignment: a, hoursLeft, weightVal, priorityScore };
+      });
+
+      prioritized.sort((a, b) => b.priorityScore - a.priorityScore);
+
+      container.innerHTML = '';
+      prioritized.slice(0, 5).forEach((item, index) => {
+        const a = item.assignment;
+        const dueDate = new Date(a.due);
+        const isOverdue = item.hoursLeft < 0;
+
+        const li = document.createElement('div');
+        li.className = 'item-card';
+        li.innerHTML = `
+          <div class="item-info">
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <span class="badge" style="background:var(--accent); color:#fff;">#${index + 1} Priority</span>
+              <span class="item-title">${escapeHTML(a.name)}</span>
+              ${a.weight ? `<span class="badge" style="background:rgba(56, 189, 248, 0.2); color:#38bdf8; border-color:rgba(56, 189, 248, 0.4);">Weight: ${escapeHTML(a.weight)}</span>` : ''}
+            </div>
+            <span class="item-sub" style="${isOverdue ? 'color: var(--danger); font-weight:600;' : ''}">
+              ${isOverdue ? '⚠️ OVERDUE - Due' : 'Due'}: ${dueDate.toLocaleString()}
+            </span>
+          </div>
+          <div style="display:flex; gap:0.4rem; align-items:center;">
+            ${a.link ? `<a href="${a.link}" target="_blank" class="alert-link">Open Link ↗</a>` : ''}
+            <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.8rem;" onclick="toggleAssignment(${a.id})">Mark Complete</button>
+          </div>
+        `;
+        container.appendChild(li);
+      });
+    }
+
+    /* ================= WARNING BANNERS ON MAIN HUB ================= */
+    function checkDueWarnings() {
+      const alertContainer = document.getElementById('urgent-alert-container');
+      const now = new Date();
+      
+      const urgent = assignments.filter(a => {
+        if (a.completed) return false;
+        const dueDate = new Date(a.due);
+        const diffHours = (dueDate - now) / (1000 * 60 * 60);
+        return diffHours <= 72;
+      });
+
+      if (urgent.length === 0) {
+        alertContainer.innerHTML = '';
+        return;
+      }
+
+      let html = `<div class="warning-banner"><div class="warning-title">⚠️ Upcoming / Overdue Assignment Alerts</div>`;
+
+      urgent.forEach(a => {
+        const dueDate = new Date(a.due);
+        const isOverdue = dueDate < now;
+        html += `
+          <div class="alert-item ${isOverdue ? 'overdue' : ''}">
+            <span><strong>${isOverdue ? '[OVERDUE]' : '[DUE SOON]'}:</strong> ${escapeHTML(a.name)} ${a.weight ? `(${escapeHTML(a.weight)})` : ''} — Due: ${dueDate.toLocaleDateString()} ${dueDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+            ${a.link ? `<a href="${a.link}" target="_blank" class="alert-link">Open Link ↗</a>` : ''}
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      alertContainer.innerHTML = html;
+    }
+
+    /* ================= NOTES & MARKDOWN ================= */
+    let notes = JSON.parse(localStorage.getItem('hub_notes')) || [];
+    let editingNoteId = null;
+
+    function saveNote() {
+      const title = document.getElementById('note-title').value.trim();
+      const content = document.getElementById('note-content').value.trim();
+
+      if (!title || !content) {
+        alert('Please provide both a title and content for your note.');
+        return;
+      }
+
+      if (editingNoteId !== null) {
+        notes = notes.map(n => n.id === editingNoteId ? { ...n, title, content } : n);
+        logActivity(`Updated note "${title}"`);
+        cancelNoteEdit();
+      } else {
+        notes.push({ id: Date.now(), title, content, date: new Date().toLocaleDateString() });
+        logActivity(`Created note "${title}"`);
+        document.getElementById('note-title').value = '';
+        document.getElementById('note-content').value = '';
+      }
+
+      localStorage.setItem('hub_notes', JSON.stringify(notes));
+      renderNotes();
+    }
+
+    function editNote(id) {
+      const note = notes.find(n => n.id === id);
+      if (note) {
+        editingNoteId = id;
+        document.getElementById('note-title').value = note.title;
+        document.getElementById('note-content').value = note.content;
+
+        document.getElementById('note-form-title').textContent = 'Edit Note';
+        document.getElementById('note-submit-btn').textContent = 'Update Note';
+        document.getElementById('note-cancel-btn').style.display = 'inline-block';
+
+        document.getElementById('notes-form-card').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function cancelNoteEdit() {
+      editingNoteId = null;
+      document.getElementById('note-title').value = '';
+      document.getElementById('note-content').value = '';
+      document.getElementById('note-form-title').textContent = 'Text Documents / Notes (Markdown Enabled)';
+      document.getElementById('note-submit-btn').textContent = 'Save Note';
+      document.getElementById('note-cancel-btn').style.display = 'none';
+    }
+
+    function deleteNote(id) {
+      const note = notes.find(n => n.id === id);
+      if (note) {
+        logActivity(`Deleted note "${note.title}"`);
+        notes = notes.filter(n => n.id !== id);
+        if (editingNoteId === id) cancelNoteEdit();
+        localStorage.setItem('hub_notes', JSON.stringify(notes));
+        renderNotes();
+      }
+    }
+
+    function renderNotes() {
+      const list = document.getElementById('notes-list');
+      list.innerHTML = notes.length === 0 ? '<p style="color:var(--text-muted)">No saved notes.</p>' : '';
+
+      notes.forEach(n => {
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.style.flexDirection = 'column';
+        div.style.alignItems = 'flex-start';
+
+        const parsedMarkdown = DOMPurify.sanitize(marked.parse(n.content));
+
+        div.innerHTML = `
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+            <span class="item-title">${escapeHTML(n.title)}</span>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn-edit" onclick="editNote(${n.id})">Edit</button>
+              <button class="btn-danger" onclick="deleteNote(${n.id})">Delete</button>
+            </div>
+          </div>
+          <span class="item-sub" style="margin-bottom:0.5rem;">Saved on: ${n.date}</span>
+          <div class="markdown-body">${parsedMarkdown}</div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    /* ================= HTML LOADER ================= */
+    function renderHTMLLoader() {
+      const code = document.getElementById('html-input').value;
+      const iframe = document.getElementById('html-preview');
+      iframe.srcdoc = code;
+    }
+
+    function clearHTMLLoader() {
+      document.getElementById('html-input').value = '';
+      document.getElementById('html-preview').srcdoc = '';
+    }
+
+    /* ================= CODE VAULT / SNIPPETS ================= */
+    let codeSnippets = JSON.parse(localStorage.getItem('hub_code_snippets')) || [];
+    let editingCodeId = null;
+
+    function saveCodeSnippet() {
+      const title = document.getElementById('code-title').value.trim();
+      const lang = document.getElementById('code-lang').value;
+      const desc = document.getElementById('code-desc').value.trim();
+      const code = document.getElementById('code-body').value.trim();
+
+      if (!title || !code) {
+        alert('Please fill out both the Code Title and the Code Snippet text box.');
+        return;
+      }
+
+      if (editingCodeId !== null) {
+        codeSnippets = codeSnippets.map(c => c.id === editingCodeId ? { ...c, title, lang, desc, code } : c);
+        logActivity(`Updated code snippet "${title}" (${lang})`);
+        cancelCodeEdit();
+      } else {
+        codeSnippets.push({
+          id: Date.now(),
+          title, lang, desc, code,
+          date: new Date().toLocaleDateString()
+        });
+        logActivity(`Saved code snippet "${title}" (${lang})`);
+        document.getElementById('code-title').value = '';
+        document.getElementById('code-desc').value = '';
+        document.getElementById('code-body').value = '';
+      }
+
+      localStorage.setItem('hub_code_snippets', JSON.stringify(codeSnippets));
+      renderCodeSnippets();
+    }
+
+    function editCodeSnippet(id) {
+      const item = codeSnippets.find(c => c.id === id);
+      if (item) {
+        editingCodeId = id;
+        document.getElementById('code-title').value = item.title;
+        document.getElementById('code-lang').value = item.lang;
+        document.getElementById('code-desc').value = item.desc || '';
+        document.getElementById('code-body').value = item.code;
+
+        document.getElementById('code-form-title').textContent = 'Edit Code Snippet';
+        document.getElementById('code-submit-btn').textContent = 'Update Code Snippet';
+        document.getElementById('code-cancel-btn').style.display = 'inline-block';
+
+        document.getElementById('code-form-card').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function cancelCodeEdit() {
+      editingCodeId = null;
+      document.getElementById('code-title').value = '';
+      document.getElementById('code-desc').value = '';
+      document.getElementById('code-body').value = '';
+      document.getElementById('code-form-title').textContent = 'Save Code Snippet';
+      document.getElementById('code-submit-btn').textContent = 'Save Code Snippet';
+      document.getElementById('code-cancel-btn').style.display = 'none';
+    }
+
+    function deleteCodeSnippet(id) {
+      const item = codeSnippets.find(c => c.id === id);
+      if (item) {
+        logActivity(`Deleted code snippet "${item.title}"`);
+        codeSnippets = codeSnippets.filter(c => c.id !== id);
+        if (editingCodeId === id) cancelCodeEdit();
+        localStorage.setItem('hub_code_snippets', JSON.stringify(codeSnippets));
+        renderCodeSnippets();
+      }
+    }
+
+    function copySnippetCode(id, btnElement) {
+      const item = codeSnippets.find(c => c.id === id);
+      if (item) {
+        navigator.clipboard.writeText(item.code).then(() => {
+          const originalText = btnElement.textContent;
+          btnElement.textContent = 'Copied!';
+          setTimeout(() => btnElement.textContent = originalText, 1500);
+        });
+      }
+    }
+
+    function renderCodeSnippets() {
+      const list = document.getElementById('code-vault-list');
+      const searchQuery = document.getElementById('code-search-input').value.toLowerCase();
+      const langFilter = document.getElementById('code-filter-lang').value;
+
+      const filtered = codeSnippets.filter(item => {
+        const matchesSearch = item.title.toLowerCase().includes(searchQuery) || 
+                              item.desc.toLowerCase().includes(searchQuery) ||
+                              item.code.toLowerCase().includes(searchQuery);
+        const matchesLang = langFilter === 'ALL' || item.lang === langFilter;
+        return matchesSearch && matchesLang;
+      });
+
+      list.innerHTML = filtered.length === 0 ? '<p style="color:var(--text-muted)">No code snippets found matching your filter.</p>' : '';
+
+      filtered.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.style.flexDirection = 'column';
+        div.style.alignItems = 'flex-start';
+
+        const parsedDesc = item.desc ? DOMPurify.sanitize(marked.parseInline(item.desc)) : '';
+
+        div.innerHTML = `
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <span class="item-title">${escapeHTML(item.title)}</span>
+              <span class="badge" style="margin-left: 0.5rem;">${item.lang}</span>
+            </div>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn-copy" onclick="copySnippetCode(${item.id}, this)">Copy Code</button>
+              <button class="btn-edit" onclick="editCodeSnippet(${item.id})">Edit</button>
+              <button class="btn-danger" onclick="deleteCodeSnippet(${item.id})">Delete</button>
+            </div>
+          </div>
+          
+          ${parsedDesc ? `<span class="item-sub" style="margin-top:0.25rem;">${parsedDesc}</span>` : ''}
+          <span class="item-sub" style="font-size: 0.75rem;">Saved on: ${item.date}</span>
+          
+          <pre class="code-block"><code>${escapeHTML(item.code)}</code></pre>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    /* ================= FLASHCARD DECK MODULE ================= */
+    let flashcards = JSON.parse(localStorage.getItem('hub_flashcards')) || [];
+    let currentFCIndex = 0;
+
+    function addFlashcard(e) {
+      e.preventDefault();
+      const deck = document.getElementById('fc-deck').value.trim();
+      const front = document.getElementById('fc-front').value.trim();
+      const back = document.getElementById('fc-back').value.trim();
+
+      flashcards.push({ id: Date.now(), deck, front, back });
+      localStorage.setItem('hub_flashcards', JSON.stringify(flashcards));
+      logActivity(`Created flashcard for deck "${deck}"`);
+
+      document.getElementById('fc-front').value = '';
+      document.getElementById('fc-back').value = '';
+
+      renderFlashcardViewer();
+      renderFlashcardList();
+    }
+
+    function flipFlashcard() {
+      document.getElementById('card-inner').classList.toggle('flipped');
+    }
+
+    function renderFlashcardViewer() {
+      const cardInner = document.getElementById('card-inner');
+      if (cardInner) cardInner.classList.remove('flipped');
+
+      const frontText = document.getElementById('card-front-text');
+      const backText = document.getElementById('card-back-text');
+      const deckTag = document.getElementById('card-deck-tag');
+      const counter = document.getElementById('flashcard-counter');
+
+      if (flashcards.length === 0) {
+        frontText.textContent = "No cards added yet!";
+        backText.textContent = "Add flashcards using the form to start studying.";
+        deckTag.textContent = "Deck";
+        counter.textContent = "0 / 0";
+        return;
+      }
+
+      if (currentFCIndex >= flashcards.length) currentFCIndex = 0;
+      if (currentFCIndex < 0) currentFCIndex = flashcards.length - 1;
+
+      const card = flashcards[currentFCIndex];
+      frontText.textContent = card.front;
+      backText.textContent = card.back;
+      deckTag.textContent = card.deck;
+      counter.textContent = `${currentFCIndex + 1} / ${flashcards.length}`;
+    }
+
+    function nextFlashcard() {
+      if (flashcards.length === 0) return;
+      currentFCIndex = (currentFCIndex + 1) % flashcards.length;
+      renderFlashcardViewer();
+    }
+
+    function prevFlashcard() {
+      if (flashcards.length === 0) return;
+      currentFCIndex = (currentFCIndex - 1 + flashcards.length) % flashcards.length;
+      renderFlashcardViewer();
+    }
+
+    function shuffleFlashcards() {
+      for (let i = flashcards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]];
+      }
+      currentFCIndex = 0;
+      renderFlashcardViewer();
+    }
+
+    function deleteFlashcard(id) {
+      flashcards = flashcards.filter(f => f.id !== id);
+      localStorage.setItem('hub_flashcards', JSON.stringify(flashcards));
+      logActivity('Deleted a flashcard');
+      renderFlashcardViewer();
+      renderFlashcardList();
+    }
+
+    function renderFlashcardList() {
+      const list = document.getElementById('flashcard-manage-list');
+      if (!list) return;
+
+      list.innerHTML = flashcards.length === 0 ? '<p style="color:var(--text-muted)">No flashcards created.</p>' : '';
+
+      flashcards.forEach(card => {
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.innerHTML = `
+          <div class="item-info">
+            <span class="badge" style="width: fit-content; margin-bottom: 0.2rem;">${escapeHTML(card.deck)}</span>
+            <span class="item-title" style="font-size: 0.95rem;">Q: ${escapeHTML(card.front)}</span>
+            <span class="item-sub">A: ${escapeHTML(card.back)}</span>
+          </div>
+          <button class="btn-danger" onclick="deleteFlashcard(${card.id})">Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    /* ================= GPA & GRADE CALCULATOR (PERCENTAGE CONVERTER) ================= */
+    let courseGrades = JSON.parse(localStorage.getItem('hub_grades')) || [];
+
+    function convertPctToGPA(pct) {
+      if (pct >= 93) return { letter: 'A', gpa: 4.0 };
+      if (pct >= 90) return { letter: 'A-', gpa: 3.7 };
+      if (pct >= 87) return { letter: 'B+', gpa: 3.3 };
+      if (pct >= 83) return { letter: 'B', gpa: 3.0 };
+      if (pct >= 80) return { letter: 'B-', gpa: 2.7 };
+      if (pct >= 77) return { letter: 'C+', gpa: 2.3 };
+      if (pct >= 73) return { letter: 'C', gpa: 2.0 };
+      if (pct >= 70) return { letter: 'C-', gpa: 1.7 };
+      if (pct >= 67) return { letter: 'D+', gpa: 1.3 };
+      if (pct >= 65) return { letter: 'D', gpa: 1.0 };
+      return { letter: 'F', gpa: 0.0 };
+    }
+
+    function addCourseGrade(e) {
+      e.preventDefault();
+      const name = document.getElementById('gpa-course-name').value.trim();
+      const credits = parseFloat(document.getElementById('gpa-credits').value);
+      const pctInput = document.getElementById('gpa-score-pct').value.trim();
+      const selectElement = document.getElementById('gpa-letter-grade');
+      
+      let letterDisplay = '';
+      let gradeVal = 0;
+
+      if (pctInput !== '') {
+        const pct = parseFloat(pctInput);
+        const conv = convertPctToGPA(pct);
+        letterDisplay = `${conv.letter} (${pct}%)`;
+        gradeVal = conv.gpa;
+      } else if (selectElement.value !== '') {
+        gradeVal = parseFloat(selectElement.value);
+        letterDisplay = selectElement.options[selectElement.selectedIndex].text.split('-')[0].trim();
+      } else {
+        alert('Please enter either a percentage score or select a letter grade.');
+        return;
+      }
+
+      courseGrades.push({ id: Date.now(), name, credits, gradeVal, letterDisplay });
+      localStorage.setItem('hub_grades', JSON.stringify(courseGrades));
+      logActivity(`Logged course grade for "${name}" (${letterDisplay})`);
+
+      document.getElementById('gpa-course-name').value = '';
+      document.getElementById('gpa-credits').value = '';
+      document.getElementById('gpa-score-pct').value = '';
+      selectElement.value = '';
+
+      renderCourseGrades();
+    }
+
+    function deleteCourseGrade(id) {
+      courseGrades = courseGrades.filter(g => g.id !== id);
+      localStorage.setItem('hub_grades', JSON.stringify(courseGrades));
+      logActivity('Deleted course grade');
+      renderCourseGrades();
+    }
+
+    function renderCourseGrades() {
+      const list = document.getElementById('gpa-course-list');
+      if (!list) return;
+
+      list.innerHTML = courseGrades.length === 0 ? '<p style="color:var(--text-muted)">No course grades logged.</p>' : '';
+
+      let totalPoints = 0;
+      let totalCredits = 0;
+
+      courseGrades.forEach(g => {
+        totalPoints += g.gradeVal * g.credits;
+        totalCredits += g.credits;
+
+        const li = document.createElement('li');
+        li.className = 'item-card';
+        li.innerHTML = `
+          <div class="item-info">
+            <span class="item-title">${escapeHTML(g.name)}</span>
+            <span class="item-sub">${g.credits} Credits — Grade: ${escapeHTML(g.letterDisplay || g.gradeVal.toFixed(1))} (GPA Value: ${g.gradeVal.toFixed(1)})</span>
+          </div>
+          <button class="btn-danger" onclick="deleteCourseGrade(${g.id})">Delete</button>
+        `;
+        list.appendChild(li);
+      });
+
+      const gpa = totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : '0.00';
+      document.getElementById('gpa-display-score').textContent = gpa;
+      document.getElementById('gpa-total-credits').textContent = `Total Credits: ${totalCredits}`;
+    }
+
+    /* ================= UTILS ================= */
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    // INITIAL RENDERS
+    renderAssignments();
+    renderPriorityAssignments();
+    renderNotes();
+    renderCodeSnippets();
+    renderActivityLogs();
+    renderFlashcardViewer();
+    renderFlashcardList();
+    renderCourseGrades();
+    checkDueWarnings();
   </script>
 </body>
 </html>
