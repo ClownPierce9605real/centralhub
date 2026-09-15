@@ -1236,8 +1236,8 @@
       checkDueWarnings();
     }
 
-    // Auto-poll JSONBin every 5 seconds for live changes
-    setInterval(loadFromCloud, 5000);
+    // Auto-poll JSONBin every 10 seconds for live changes
+    setInterval(loadFromCloud, 10000);
 
     /* ================= THEME SWITCHER ================= */
     const savedTheme = localStorage.getItem('hub_theme') || 'dark';
